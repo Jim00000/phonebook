@@ -13,3 +13,8 @@ entry *append(char lastName[], entry *e)
 {
     return NULL;
 }
+
+void free_entry(entry *pHead)
+{
+    ///TODO:implement it
+}

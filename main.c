@@ -6,6 +6,16 @@
 
 #include IMPL
 
+#if defined(__linux__) & defined(MEMLEAK)
+#include <mcheck.h>
+#endif
+
+#if defined(OPT)
+#define LOG_FILE "opt.txt"
+#else
+#define LOG_FILE "orig.txt"
+#endif
+
 #define DICT_FILE "./dictionary/words.txt"
 
 static double diff_in_second(struct timespec t1, struct timespec t2)
@@ -21,8 +31,14 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
     return (diff.tv_sec + diff.tv_nsec / 1000000000.0);
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
+
+#if defined(__linux__) & defined(MEMLEAK)
+    setenv("MALLOC_TRACE", "./memleak.log",1);
+    mtrace();
+#endif
+
     FILE *fp;
     int i = 0;
     char line[MAX_LAST_NAME_SIZE];
@@ -32,13 +48,20 @@ int main(int argc, char *argv[])
     /* check file opening */
     fp = fopen(DICT_FILE, "r");
     if (fp == NULL) {
-        printf("cannot open the file\n");
-        return -1;
+        fprintf(stderr,"cannot open the file\n");
+        exit(EXIT_FAILURE);
     }
 
     /* build the entry */
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
+
+    /* check memory allocation */
+    if(pHead == NULL) {
+        fprintf(stderr, "allocating memory fails\n");
+        exit(EXIT_FAILURE);
+    }
+
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
@@ -60,11 +83,11 @@ int main(int argc, char *argv[])
     /* close file as soon as possible */
     fclose(fp);
 
+    /* set back to the linklist head */
     e = pHead;
 
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
-    e = pHead;
 
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
@@ -79,20 +102,23 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 
-    FILE *output;
-#if defined(OPT)
-    output = fopen("opt.txt", "a");
-#else
-    output = fopen("orig.txt", "a");
-#endif
+    FILE *output = NULL;
+    output = fopen(LOG_FILE, "a");
+
+    /* check file status */
+    if(output == NULL) {
+        fprintf(stderr,"open file %s error\n",LOG_FILE);
+        exit(EXIT_FAILURE);
+    }
+
     fprintf(output, "append() findName() %lf %lf\n", cpu_time1, cpu_time2);
     fclose(output);
 
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
-    if (pHead->pNext) free(pHead->pNext);
-    free(pHead);
+    /* free linklist memory */
+    free_entry(pHead);
 
     return 0;
 }
