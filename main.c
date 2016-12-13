@@ -89,16 +89,28 @@ int main(void)
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
 
+#if defined(OPT)
+    unsigned long input_hash = sdbm(input);
+    assert(findName(input_hash, e) &&
+           "Did you implement findName() in " IMPL "?");
+    assert(1 == (findName(input_hash, e)->hash == input_hash ));
+#else
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
+#endif
+
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);
+#if defined(OPT)
+    findName(input_hash, e);
+#else
     findName(input, e);
+#endif
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 

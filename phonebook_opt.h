@@ -7,12 +7,13 @@ typedef struct __PHONE_BOOK_ENTRY entry;
 typedef struct __PHONE_BOOK_CONTENT Content;
 
 struct __PHONE_BOOK_ENTRY {
-    char *lastName;
+    unsigned long hash;
     entry *pNext;
     Content *pContent;
 };
 
 struct __PHONE_BOOK_CONTENT {
+    char lastName[MAX_LAST_NAME_SIZE];
     char firstName[16];
     char email[16];
     char phone[10];
@@ -24,9 +25,10 @@ struct __PHONE_BOOK_CONTENT {
     char zip[5];
 };
 
-entry *findName(char lastName[], entry *pHead);
+entry *findName(unsigned long hash, entry *pHead);
 entry *append(char lastName[], entry *e);
 void free_entry(entry *pHead);
 void free_Content(Content *pHead);
+unsigned long sdbm(const char *str);
 
 #endif

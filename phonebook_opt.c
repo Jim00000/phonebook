@@ -5,14 +5,12 @@
 #include "phonebook_opt.h"
 
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
-entry *findName(char lastName[], entry *pHead)
+entry *findName(unsigned long hash, entry *pHead)
 {
-    if(lastName != NULL) {
-        while (pHead != NULL) {
-            if (pHead->lastName != NULL && strcasecmp(lastName, pHead->lastName) == 0)
-                return pHead;
-            pHead = pHead->pNext;
-        }
+    while (pHead != NULL) {
+        if (pHead->hash == hash )
+            return pHead;
+        pHead = pHead->pNext;
     }
     return NULL;
 }
@@ -31,14 +29,8 @@ entry *append(char lastName[], entry *e)
 
         e = e->pNext;
 
-        e->lastName = (char*) malloc(strlen(lastName));
-        /* check memory allocation */
-        if(e->lastName == NULL) {
-            fprintf(stderr, "allocating memory fails\n");
-            exit(EXIT_FAILURE);
-        }
+        e->hash = sdbm(lastName);
 
-        strcpy(e->lastName, lastName);
         e->pNext = NULL;
     }
 
@@ -52,7 +44,6 @@ void free_entry(entry *pHead)
         while(point_curr != NULL) {
             entry *del_node = point_curr;
             point_curr = point_curr->pNext;
-            free(del_node->lastName);
             free_Content(del_node->pContent);
             free(del_node);
             del_node = NULL;
@@ -67,4 +58,15 @@ void free_Content(Content *pHead)
         free(pHead);
     }
     pHead = NULL;
+}
+
+unsigned long sdbm(const char *str)
+{
+    unsigned long hash = 0;
+    int c;
+
+    while ((c = *str++))
+        hash = c + (hash << 6) + (hash << 16) - hash;
+
+    return hash;
 }
