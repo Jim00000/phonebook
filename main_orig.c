@@ -10,12 +10,7 @@
 #include <mcheck.h>
 #endif
 
-#if defined(OPT)
-#define LOG_FILE "opt.txt"
-#else
 #define LOG_FILE "orig.txt"
-#endif
-
 #define DICT_FILE "./dictionary/words.txt"
 
 static double diff_in_second(struct timespec t1, struct timespec t2)
@@ -89,16 +84,11 @@ int main(void)
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
 
-#if defined(OPT)
-    unsigned long input_hash = sdbm(input);
-    assert(findName(input_hash, e) &&
-           "Did you implement findName() in " IMPL "?");
-    assert(1 == (findName(input_hash, e)->hash == input_hash ));
-#else
+    /* check correctness */
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
-#endif
+
 
 
 #if defined(__GNUC__)
@@ -106,11 +96,7 @@ int main(void)
 #endif
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);
-#if defined(OPT)
-    findName(input_hash, e);
-#else
     findName(input, e);
-#endif
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 

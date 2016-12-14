@@ -5,6 +5,7 @@
 
 typedef struct __PHONE_BOOK_ENTRY entry;
 typedef struct __PHONE_BOOK_CONTENT Content;
+typedef struct __PHONE_BOOK_HASH_TABLE HashTable;
 
 struct __PHONE_BOOK_ENTRY {
     unsigned long hash;
@@ -25,10 +26,16 @@ struct __PHONE_BOOK_CONTENT {
     char zip[5];
 };
 
-entry *findName(unsigned long hash, entry *pHead);
-entry *append(char lastName[], entry *e);
+struct __PHONE_BOOK_HASH_TABLE {
+    unsigned int buckets_num;
+    entry **buckets;
+};
+
+entry *findName(char lastName[], HashTable *ht);
+void append(char lastName[], HashTable *e);
+unsigned long sdbm(const char *str);
 void free_entry(entry *pHead);
 void free_Content(Content *pHead);
-unsigned long sdbm(const char *str);
+void free_HashTable(HashTable *hashTable);
 
 #endif

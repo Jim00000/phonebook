@@ -4,37 +4,63 @@
 
 #include "phonebook_opt.h"
 
+#define NUM_BUCKETS 4
+
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
-entry *findName(unsigned long hash, entry *pHead)
+entry *findName(char lastName[], HashTable *ht)
 {
-    while (pHead != NULL) {
-        if (pHead->hash == hash )
-            return pHead;
-        pHead = pHead->pNext;
+    if(lastName != NULL && ht != NULL) {
+        unsigned long hash = sdbm(lastName);
+        unsigned int bucket = hash % NUM_BUCKETS;
+
+        if(ht->buckets[bucket] == NULL) {
+            return NULL;
+        } else {
+            entry *pHead = ht->buckets[bucket];
+            while (pHead != NULL) {
+                if (pHead->hash == hash )
+                    return pHead;
+                pHead = pHead->pNext;
+            }
+
+            return NULL;
+        }
     }
+
     return NULL;
 }
 
-entry *append(char lastName[], entry *e)
+void append(char lastName[], HashTable *ht)
 {
-    if(lastName != NULL && e != NULL) {
-        /* allocate memory for the new entry and put lastName */
+    if(lastName != NULL && ht != NULL) {
 
-        e->pNext = (entry *) malloc(sizeof(entry));
+        /* calculate hash */
+        unsigned long hash = sdbm(lastName);
+        unsigned int bucket = hash % NUM_BUCKETS;
+
+        if(ht->buckets[bucket] == NULL) {
+            /* allocate a block of memory for this bucket */
+            ht->buckets[bucket] = (entry *) malloc(sizeof(entry));
+            /* check memory allocation */
+            if(ht->buckets[bucket] == NULL) {
+                fprintf(stderr, "allocating memory fails\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        entry *new_entry = (entry *) malloc(sizeof(entry));
         /* check memory allocation */
-        if(e->pNext == NULL) {
+        if(new_entry == NULL) {
             fprintf(stderr, "allocating memory fails\n");
             exit(EXIT_FAILURE);
         }
 
-        e = e->pNext;
+        new_entry->pNext = ht->buckets[bucket];
+        new_entry->hash = hash;
 
-        e->hash = sdbm(lastName);
-
-        e->pNext = NULL;
+        ht->buckets[bucket] = new_entry;
     }
 
-    return e;
 }
 
 void free_entry(entry *pHead)
@@ -58,6 +84,19 @@ void free_Content(Content *pHead)
         free(pHead);
     }
     pHead = NULL;
+}
+
+void free_HashTable(HashTable *hashTable)
+{
+    if(hashTable != NULL) {
+        for(unsigned int i = 0; i<hashTable->buckets_num; i++) {
+            free_entry(hashTable->buckets[i]);
+        }
+        free(hashTable->buckets);
+        hashTable->buckets = NULL;
+        free(hashTable);
+        hashTable = NULL;
+    }
 }
 
 unsigned long sdbm(const char *str)
