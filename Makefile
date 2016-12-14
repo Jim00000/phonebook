@@ -30,10 +30,10 @@ debug:
 
 cache-test: $(EXEC)
 	perf stat --repeat 100 \
-		-e cache-misses,cache-references,instructions,cycles \
+		-e cache-misses:u,cache-references:u,instructions:u,cycles:u \
 		./phonebook_orig
 	perf stat --repeat 100 \
-		-e cache-misses,cache-references,instructions,cycles \
+		-e cache-misses:u,cache-references:u,instructions:u,cycles:u \
 		./phonebook_opt
 
 output.txt: cache-test calculate
