@@ -31,13 +31,6 @@ entry *append(char lastName[], entry *e)
 
         e = e->pNext;
 
-        e->lastName = (char*) malloc(strlen(lastName));
-        /* check memory allocation */
-        if(e->lastName == NULL) {
-            fprintf(stderr, "allocating memory fails\n");
-            exit(EXIT_FAILURE);
-        }
-
         strcpy(e->lastName, lastName);
         e->pNext = NULL;
     }
@@ -52,7 +45,6 @@ void free_entry(entry *pHead)
         while(point_curr != NULL) {
             entry *del_node = point_curr;
             point_curr = point_curr->pNext;
-            free(del_node->lastName);
             free_Content(del_node->pContent);
             free(del_node);
             del_node = NULL;

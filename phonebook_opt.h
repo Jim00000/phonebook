@@ -7,7 +7,7 @@ typedef struct __PHONE_BOOK_ENTRY entry;
 typedef struct __PHONE_BOOK_CONTENT Content;
 
 struct __PHONE_BOOK_ENTRY {
-    char *lastName;
+    char lastName[MAX_LAST_NAME_SIZE];
     entry *pNext;
     Content *pContent;
 };
