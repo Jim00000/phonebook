@@ -10,7 +10,7 @@
 #include <mcheck.h>
 #endif
 
-#define NUM_BUCKETS 4
+#define NUM_BUCKETS 32
 #define LOG_FILE "opt.txt"
 #define DICT_FILE "./dictionary/words.txt"
 
@@ -58,7 +58,7 @@ int main(void)
     }
 
     hashTable->buckets_num = NUM_BUCKETS;
-    hashTable->buckets = (entry **) malloc(NUM_BUCKETS * sizeof(entry*));
+    hashTable->buckets = (RBTRoot **) malloc(NUM_BUCKETS * sizeof(RBTRoot *));
 
     /* check memory allocation */
     if(hashTable->buckets == NULL) {
@@ -90,7 +90,7 @@ int main(void)
 
     assert(findName(input, hashTable) &&
            "Did you implement findName() in " IMPL "?");
-    assert(1 == (findName(input, hashTable)->hash == sdbm(input) ));
+    assert(1 == (findName(input, hashTable)->key == sdbm(input) ));
 
 
 #if defined(__GNUC__)

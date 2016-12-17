@@ -16,7 +16,7 @@ phonebook_orig: main_orig.c phonebook_orig.c phonebook_orig.h
 phonebook_opt: main_opt.c phonebook_opt.c phonebook_opt.h
 	$(CC) $(CFLAGS_common) $(CFLAGS_opt) \
 		-DIMPL="\"$@.h\"" -o $@ \
-		main_opt.c $@.c
+		main_opt.c $@.c 
 
 run: $(EXEC)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches
